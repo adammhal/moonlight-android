@@ -361,6 +361,14 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             }
         }
 
+        // A gamepad's separate touchpad node (the Linux hid-playstation driver exposes one) has no keys of its own.
+        // It would otherwise pass the keyboard-type check below and show up as an extra controller.
+        int sources = device.getSources();
+        if ((sources & InputDevice.SOURCE_TOUCHPAD) == InputDevice.SOURCE_TOUCHPAD &&
+                (sources & (InputDevice.SOURCE_KEYBOARD | InputDevice.SOURCE_GAMEPAD | InputDevice.SOURCE_JOYSTICK)) == 0) {
+            return false;
+        }
+
         // Otherwise, we'll try anything that claims to be a non-alphabetic keyboard
         return device.getKeyboardType() != InputDevice.KEYBOARD_TYPE_ALPHABETIC;
     }
